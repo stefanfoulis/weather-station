@@ -1,0 +1,11 @@
+click
+
+# Talking to RPi GPOI stuff
+pigpio
+
+# sending data over mqtt
+paho-mqtt
+
+# development helpers
+ipython
+ipdb

@@ -1,0 +1,11 @@
+[Unit]
+Description=weather_station
+Requires=multi-user.target,pigpiod.service
+
+[Service]
+ExecStart=/home/pi/weather_station/.venv/bin/weather_station
+User=pi
+Group=pi
+
+[Install]
+WantedBy=multi-user.target
