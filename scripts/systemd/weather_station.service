@@ -4,6 +4,7 @@ Requires=multi-user.target,pigpiod.service
 
 [Service]
 ExecStart=/home/pi/weather_station/.venv/bin/weather_station
+EnvironmentFile=/home/pi/.weather_station_env
 User=pi
 Group=pi
 

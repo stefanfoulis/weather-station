@@ -36,5 +36,7 @@ Start `weather_station` at boot time with `systemd`::
     sudo chmod 644 /lib/systemd/system/weather_station.service
     sudo systemctl daemon-reload
     sudo systemctl enable weather_station.service
+    # create a file named /home/pi/.weather_station_env that contains credentials
+    # for thingsboard (WEATHER_STATION_TB_HOST, WEATHER_STATION_TB_PORT, WEATHER_STATION_TB_ACCESS_TOKEN)
     sudo reboot
 
