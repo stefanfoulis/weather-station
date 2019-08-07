@@ -5,8 +5,12 @@ import logging
 
 import pigpio  # http://abyz.co.uk/rpi/pigpio/python.html
 
-logging.basicConfig(filename='log_weather.log', level=logging.DEBUG, format='%(asctime)s %(message)s',
-                    datefmt='%d/%m/%Y %I:%M:%S %p')
+logging.basicConfig(
+    filename="log_weather.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(message)s",
+    datefmt="%d/%m/%Y %I:%M:%S %p",
+)
 
 # Wind vane params
 PIN_WIND_VANE = 17
@@ -37,6 +41,7 @@ class WindVane(threading.Thread):
         self.in_code = False
         self.pin = pin
         self.direction_text = "nothing"
+        self.direction_arrow = ""
         self.direction_degrees = "nothing"
         self.pi = pigpio.pi()  # Connect to Pi.
         self.hwHandling()
@@ -44,8 +49,10 @@ class WindVane(threading.Thread):
     # for decoupling and mocking
     def hwHandling(self):
         if not self.pi.connected:
-            logging.critical('Cannot connect to pigpio-pi')
-        self.pi.set_mode(self.pin, pigpio.INPUT)  # wind vane connected to this pinWindVane.
+            logging.critical("Cannot connect to pigpio-pi")
+        self.pi.set_mode(
+            self.pin, pigpio.INPUT
+        )  # wind vane connected to this pinWindVane.
         self.pi.set_glitch_filter(self.pin, GLITCH)  # Ignore glitches.
         self.pi.callback(self.pin, pigpio.EITHER_EDGE, self.cbf)
 
@@ -82,14 +89,14 @@ class WindVane(threading.Thread):
             self.fetching_code = False
         else:
             self.code = []
-            logging.critical('Error deciphering EOF')
+            logging.critical("Error deciphering EOF")
 
     def run(self):
         self.loopWindVane()
 
     def loopWindVane(self):
         while True:
-            logging.debug('Starting reading wind vane')
+            logging.debug("Starting reading wind vane")
             dir_num = None
             self.code = []
             self.fetching_code = True
@@ -123,42 +130,49 @@ class WindVane(threading.Thread):
 
             # Takes only the last 4 bit readings (out of 8)
             # There are gaps between them so only take even numbers
-            if (len(records) > 13):
+            if len(records) > 13:
                 compass = []
 
-                if (records[8] > 400 and records[8] < 600):
+                if records[8] > 400 and records[8] < 600:
                     compass.append(0)
                 else:
                     compass.append(1)
 
-                if (records[10] > 400 and records[10] < 600):
+                if records[10] > 400 and records[10] < 600:
                     compass.append(0)
                 else:
                     compass.append(1)
 
-                if (records[12] > 400 and records[12] < 600):
+                if records[12] > 400 and records[12] < 600:
                     compass.append(0)
                 else:
                     compass.append(1)
 
-                if (records[14] > 400 and records[14] < 600):
+                if records[14] > 400 and records[14] < 600:
                     compass.append(0)
                 else:
                     compass.append(1)
 
-                # TODO: validate direction
                 # number representation of the direction
                 dir_num = 0
                 for bit in compass:
                     dir_num = (dir_num << 1) | bit
 
             self.direction_text = self.numbers_to_direction(dir_num)
+            self.direction_arrow = self.numbers_to_arrow(dir_num)
             self.direction_degrees = self.numbers_to_degrees(dir_num)
-            self.report(text=self.direction_text, degrees=self.direction_degrees, ts=time.time())
-            logging.debug('Finishing reading wind vane, direction: ' + self.direction_text)
+            self.report(
+                text=self.direction_text,
+                arrow=self.direction_arrow,
+                degrees=self.direction_degrees,
+                ts=time.time(),
+            )
+            logging.debug(
+                "Finishing reading wind vane, direction: " + self.direction_text
+            )
 
     def numbers_to_direction(self, argument):
-        '''
+        """
         0    0    0    0    N
         0    0    0    1    NNE
         0    0    1    0    NE
@@ -175,7 +189,7 @@ class WindVane(threading.Thread):
         1    1    0    1    WNW
         1    1    1    0    NW
         1    1    1    1    NNW
-        '''
+        """
         switcher = {
             0: "N",
             1: "NNE",
@@ -192,9 +206,48 @@ class WindVane(threading.Thread):
             12: "W",
             13: "WNW",
             14: "NW",
-            15: "NNW"
+            15: "NNW",
         }
         return switcher.get(argument, "nothing")
+
+    def numbers_to_arrow(self, argument):
+        """
+        0    0    0    0    N
+        0    0    0    1    NNE
+        0    0    1    0    NE
+        0    0    1    1    ENE
+        0    1    0    0    E
+        0    1    0    1    ESE
+        0    1    1    0    SE
+        0    1    1    1    SSE
+        1    0    0    0    S
+        1    0    0    1    SSW
+        1    0    1    0    SW
+        1    0    1    1    WSW
+        1    1    0    0    W
+        1    1    0    1    WNW
+        1    1    1    0    NW
+        1    1    1    1    NNW
+        """
+        switcher = {
+            0: "↑",
+            1: "↑",
+            2: "↗︎",
+            3: "↗",
+            4: "→",
+            5: "→",
+            6: "↘︎",
+            7: "↘",
+            8: "↓",
+            9: "↓",
+            10: "↙︎",
+            11: "↙",
+            12: "←",
+            13: "←",
+            14: "↖︎",
+            15: "↖",
+        }
+        return switcher.get(argument, "·")
 
     def numbers_to_degrees(self, argument):
         """
@@ -236,11 +289,12 @@ class WindVane(threading.Thread):
 
         return True
 
-    def report(self, text, degrees, ts):
+    def report(self, text, arrow, degrees, ts):
         self.report_function(
             data={
                 "wind_direction_text": text,
+                "wind_direction_arrow": arrow,
                 "wind_direction_degrees": degrees,
             },
-            ts=ts,
+            ts=ts
         )

@@ -25,10 +25,11 @@ We also need the `pigpio` daemon running::
     sudo apt-get install pigpio
 
 
-Start `pigpio` at startup time with `systemd`::
+Start `pigpio` at startup time with `systemd` (ALTERNATIVE: use `sudo raspi-config` to enable "Remote GPIO")::
 
     sudo systemctl enable pigpiod.service
     sudo reboot
+
 
 Start `weather_station` at boot time with `systemd`::
 
@@ -40,3 +41,8 @@ Start `weather_station` at boot time with `systemd`::
     # for thingsboard (WEATHER_STATION_TB_HOST, WEATHER_STATION_TB_PORT, WEATHER_STATION_TB_ACCESS_TOKEN)
     sudo reboot
 
+
+
+Connecting some sensors
+
+https://learn.adafruit.com/adafruits-raspberry-pi-lesson-11-ds18b20-temperature-sensing/hardware

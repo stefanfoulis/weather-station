@@ -1,7 +1,17 @@
 click
 
-# Talking to RPi GPOI stuff
+# Talking to RPi GPIO stuff
 pigpio
+
+# Sensors #
+###########
+
+# for DS18B20 Waterproof sensor
+w1thermsensor
+
+# for Adafruit BME680 Temperature, Humidity, Air Pressure, Air Quality Sensor
+Adafruit_PureIO
+adafruit-circuitpython-bme680
 
 # sending data over mqtt
 paho-mqtt

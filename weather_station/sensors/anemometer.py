@@ -6,13 +6,21 @@ import logging
 
 import pigpio  # http://abyz.co.uk/rpi/pigpio/python.html
 
-logging.basicConfig(filename='log_weather.log', level=logging.DEBUG, format='%(asctime)s %(message)s',
-                    datefmt='%d/%m/%Y %I:%M:%S %p')
+logging.basicConfig(
+    filename="log_weather.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(message)s",
+    datefmt="%d/%m/%Y %I:%M:%S %p",
+)
 
 PIN_ANEMOMETER = 22
 
 RADIUS_CM = 9.0
-SIGNALS_PER_ROTATION = 2
+# ¯\_(ツ)_/¯ I was so sure SIGNALS_PER_ROTATION was 2. But now measuring real values
+# indicate we're off by a factor of 2 (half the expected wind speeds). I don't want to
+# climb up to the weather station and test right now. Maybe later.
+# Changing to 1 now.
+SIGNALS_PER_ROTATION = 1
 CORRECTION_FACTOR = 1.18
 CALCULACTION_INTERVAL_S = 5
 
@@ -25,11 +33,11 @@ COUNT_AS_0_TIMEOUT_MS = 5000
 
 
 def calculate_speed(
-        duration_s,
-        tick_count,
-        ticks_per_rotation=SIGNALS_PER_ROTATION,
-        circumference_cm=CIRCUMFERENCE_CM,
-        correction_factor=CORRECTION_FACTOR,
+    duration_s,
+    tick_count,
+    ticks_per_rotation=SIGNALS_PER_ROTATION,
+    circumference_cm=CIRCUMFERENCE_CM,
+    correction_factor=CORRECTION_FACTOR,
 ):
     rotations = tick_count / ticks_per_rotation
     dist_cm = circumference_cm * rotations
@@ -63,7 +71,7 @@ class Anemometer:
 
     def setup_hardware(self):
         if not self.pi.connected:
-            logging.critical('Cannot connect to pigpio-pi')
+            logging.critical("Cannot connect to pigpio-pi")
 
         self.pi.set_mode(self.pin, pigpio.INPUT)
         self.pi.set_pull_up_down(self.pin, pigpio.PUD_UP)
@@ -74,8 +82,6 @@ class Anemometer:
             # There has not been any event for COUNT_AS_0_TIMEOUT_MS. Lets
             # report 0 as speed.
             self.report(0, ts=time.time())
-            duration_s = round(time.time() - self.last_tick_at, 1)
-            logging.debug('no anemometer ticks since {} s'.format(duration_s))
             return
         current_tick_at, previous_tick_at = time.time(), self.last_tick_at
         self.tick_count += 1
@@ -84,18 +90,15 @@ class Anemometer:
         if duration_s < MIN_REPORT_INTERVAL_S:
             # Don't report more than once every MIN_REPORT_INTERVAL_S.
             # Just record the tick.
-            logging.debug('skip anemometer tick ({} ticks)'.format(self.tick_count))
-        else:
-            speed_cms_per_s = calculate_speed(duration_s=duration_s, tick_count=self.tick_count)
-            speed_km_per_h = cm_per_s_to_km_per_h(speed_cms_per_s)
-            speed_km_per_h = round(speed_km_per_h, 3)
-            self.report(speed_km_per_h, ts=current_tick_at)
-            logging.debug('ANEMOMETER {} km/h ({} ticks, {} s)'.format(speed_km_per_h, self.tick_count, duration_s))
-            self.tick_count = 0
-            self.last_tick_at = current_tick_at
+            return
+        speed_cms_per_s = calculate_speed(
+            duration_s=duration_s, tick_count=self.tick_count
+        )
+        speed_km_per_h = cm_per_s_to_km_per_h(speed_cms_per_s)
+        speed_km_per_h = round(speed_km_per_h, 3)
+        self.report(speed_km_per_h, ts=current_tick_at)
+        self.tick_count = 0
+        self.last_tick_at = current_tick_at
 
     def report(self, speed_km_per_h, ts):
-        self.report_function(
-            data={"wind_speed_km_per_h": speed_km_per_h},
-            ts=ts,
-        )
+        self.report_function(data={"wind_speed_km_per_h": speed_km_per_h}, ts=ts)

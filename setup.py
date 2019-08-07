@@ -9,6 +9,9 @@ setup(
         'Click',
         'pigpio',
         'paho-mqtt',
+        'Adafruit_PureIO',
+        'adafruit-circuitpython-bme680',
+        'w1thermsensor',
     ],
     entry_points='''
         [console_scripts]
