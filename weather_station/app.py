@@ -1,7 +1,16 @@
 import datetime
 import json
 import paho.mqtt.client as mqtt
+import calendar
 from .sensors import anemometer, rainfall, wind_vane, temperature, bme680
+
+
+def now(delta=None):
+    d = datetime.datetime.utcnow()
+    if delta:
+        d = d + delta
+    unixtime = calendar.timegm(d.utctimetuple())
+    return unixtime * 1000
 
 
 class WeatherStationApplication:
@@ -44,11 +53,12 @@ class WeatherStationApplication:
 
         if not self.tb_client:
             return
-        # self.tb_client.publish(
-        #     "v1/devices/me/telemetry", json.dumps(dict(ts=ts, values=data)), 1
-        # )
+        payload = {
+            "ts": now(),
+            "values": data,
+        }
         self.tb_client.publish(
-            "v1/devices/me/telemetry", json.dumps(data), 1
+            "v1/devices/me/telemetry", json.dumps(payload), 1
         )
 
 
