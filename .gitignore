@@ -1,0 +1,5 @@
+.python-version
+.venv
+*.log
+weather_station.egg-info
+*.pyc

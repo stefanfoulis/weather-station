@@ -14,22 +14,23 @@ def now(delta=None):
 
 
 class WeatherStationApplication:
-    def __init__(self, tb_access_token=None, tb_host=None, tb_port=1883):
+    def __init__(self, tb_user=None, tb_access_token=None, tb_host=None, tb_port=1883):
         self.tb_client = None
         self.tb_access_token = tb_access_token
+        self.tb_user = tb_user
         self.tb_host = tb_host
         self.tb_port = tb_port
 
-        self.anemometer_1 = anemometer.Anemometer(report_function=self.report)
+#        self.anemometer_1 = anemometer.Anemometer(report_function=self.report)
         self.rainfall_1 = rainfall.Rainfall(report_function=self.report)
-        self.wind_vane_1 = wind_vane.WindVane(report_function=self.report)
+#        self.wind_vane_1 = wind_vane.WindVane(report_function=self.report)
         # self.temperature_1 = temperature.Temperature(report_function=self.report)
         self.bme680_1 = bme680.BME680(report_function=self.report)
 
     def start(self):
-        self.anemometer_1.start()
+#        self.anemometer_1.start()
         self.rainfall_1.start()
-        self.wind_vane_1.start()
+#        self.wind_vane_1.start()
         # self.temperature_1.start()
         self.bme680_1.start()
 
@@ -38,7 +39,7 @@ class WeatherStationApplication:
             return
         if self.tb_host and self.tb_access_token:
             self.tb_client = client = mqtt.Client()
-            client.username_pw_set(self.tb_access_token)
+            client.username_pw_set(self.tb_user, self.tb_access_token)
             client.connect(self.tb_host, self.tb_port, 60)
             client.loop_start()
         else:
@@ -58,7 +59,7 @@ class WeatherStationApplication:
             "values": data,
         }
         self.tb_client.publish(
-            "v1/devices/me/telemetry", json.dumps(payload), 1
+            "devices/weather-station/telemetry", json.dumps(payload), 1
         )
 
 
