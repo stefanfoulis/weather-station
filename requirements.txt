@@ -4,29 +4,63 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
-adafruit-blinka==1.0.2    # via adafruit-circuitpython-bme680, adafruit-circuitpython-busdevice
+adafruit-blinka==1.0.2
+    # via
+    #   adafruit-circuitpython-bme680
+    #   adafruit-circuitpython-busdevice
 adafruit-circuitpython-bme680==3.0.6
-adafruit-circuitpython-busdevice==2.2.7  # via adafruit-circuitpython-bme680
-adafruit-platformdetect==0.0.7  # via adafruit-blinka
-backcall==0.1.0           # via ipython
+    # via -r requirements.in
+adafruit-circuitpython-busdevice==2.2.7
+    # via adafruit-circuitpython-bme680
+adafruit-platformdetect==0.0.7
+    # via adafruit-blinka
+adafruit-pureio==1.1.9
+    # via -r requirements.in
+backcall==0.1.0
+    # via ipython
 click==7.0
-decorator==4.3.0          # via ipython, traitlets
+    # via
+    #   -r requirements.in
+    #   w1thermsensor
+decorator==4.3.0
+    # via
+    #   ipython
+    #   traitlets
 ipdb==0.11
-ipython-genutils==0.2.0   # via traitlets
-ipython==7.2.0
-jedi==0.13.2              # via ipython
+    # via -r requirements.in
+ipython==7.16.3
+    # via
+    #   -r requirements.in
+    #   ipdb
+ipython-genutils==0.2.0
+    # via traitlets
+jedi==0.13.2
+    # via ipython
 paho-mqtt==1.4.0
-parso==0.3.1              # via jedi
-pexpect==4.6.0            # via ipython
-pickleshare==0.7.5        # via ipython
+    # via -r requirements.in
+parso==0.3.1
+    # via jedi
+pexpect==4.6.0
+    # via ipython
+pickleshare==0.7.5
+    # via ipython
 pigpio==1.42
-prompt-toolkit==2.0.7     # via ipython
-ptyprocess==0.6.0         # via pexpect
-pygments==2.3.1           # via ipython
-rpi-ws281x==4.1.0         # via adafruit-blinka
-rpi.gpio==0.6.5           # via adafruit-blinka
-six==1.12.0               # via prompt-toolkit, traitlets
-spidev==3.2               # via adafruit-blinka
-traitlets==4.3.2          # via ipython
+    # via -r requirements.in
+prompt-toolkit==2.0.7
+    # via ipython
+ptyprocess==0.6.0
+    # via pexpect
+pygments==2.3.1
+    # via ipython
+six==1.12.0
+    # via
+    #   prompt-toolkit
+    #   traitlets
+spidev==3.2
+    # via adafruit-blinka
+traitlets==4.3.2
+    # via ipython
 w1thermsensor==1.1.2
-wcwidth==0.1.7            # via prompt-toolkit
+    # via -r requirements.in
+wcwidth==0.1.7
+    # via prompt-toolkit
